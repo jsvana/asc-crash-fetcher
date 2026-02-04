@@ -1,0 +1,19 @@
+{
+  "name": "asc-crash-fetcher",
+  "metadata": {
+    "description": "TestFlight crash triage tools for App Store Connect",
+    "owner": {
+      "name": "Jay Madden (W6JSV)",
+      "url": "https://github.com/w6jsv"
+    }
+  },
+  "plugins": [
+    {
+      "name": "testflight-crash-triage",
+      "source": ".",
+      "description": "Triage TestFlight crash reports. Syncs crash data to SQLite, downloads .ips logs, tracks fix status. Requires asc-crash-fetcher CLI on PATH.",
+      "version": "0.2.0",
+      "tags": ["testflight", "crash", "ios", "apple", "debugging"]
+    }
+  ]
+}

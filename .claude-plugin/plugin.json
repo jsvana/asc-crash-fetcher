@@ -1,0 +1,24 @@
+{
+  "name": "testflight-crash-triage",
+  "version": "0.2.0",
+  "description": "Triage TestFlight crash reports from App Store Connect. Syncs crash data to a local SQLite database, downloads .ips crash logs, and tracks fix status. Use when working with iOS/macOS crash reports, TestFlight feedback, or App Store Connect crash data.",
+  "author": {
+    "name": "Jay Madden (W6JSV)",
+    "url": "https://github.com/w6jsv"
+  },
+  "repository": "https://github.com/w6jsv/asc-crash-fetcher",
+  "keywords": [
+    "testflight",
+    "crash",
+    "ios",
+    "macos",
+    "apple",
+    "app-store-connect",
+    "triage",
+    "debugging"
+  ],
+  "license": "MIT",
+  "components": {
+    "skills": ["skills/"]
+  }
+}
