@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "testflight-crash-triage",
-      "source": ".",
+      "source": "./",
       "description": "Triage TestFlight crash reports. Syncs crash data to SQLite, downloads .ips logs, tracks fix status. Requires asc-crash-fetcher CLI on PATH.",
       "version": "0.2.0"
     }
