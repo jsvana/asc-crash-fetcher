@@ -3,8 +3,7 @@
   "version": "0.2.0",
   "description": "Triage TestFlight crash reports from App Store Connect. Syncs crash data to a local SQLite database, downloads .ips crash logs, and tracks fix status. Use when working with iOS/macOS crash reports, TestFlight feedback, or App Store Connect crash data.",
   "author": {
-    "name": "Jay Vana",
-    "url": "https://github.com/jsvana"
+    "name": "Jay Vana"
   },
   "repository": "https://github.com/jsvana/asc-crash-fetcher",
   "keywords": [
@@ -17,8 +16,5 @@
     "triage",
     "debugging"
   ],
-  "license": "MIT",
-  "components": {
-    "skills": ["skills/"]
-  }
+  "license": "MIT"
 }
