@@ -23,13 +23,13 @@ and `betaCrashLogs` endpoints from the App Store Connect API v4.2.
 
 ### Install from GitHub Releases
 
-Download a prebuilt binary from [Releases](https://github.com/w6jsv/asc-crash-fetcher/releases)
+Download a prebuilt binary from [Releases](https://github.com/jsvana/asc-crash-fetcher/releases)
 and place it on your PATH.
 
 ### Install from source
 
 ```bash
-cargo install --git https://github.com/w6jsv/asc-crash-fetcher
+cargo install --git https://github.com/jsvana/asc-crash-fetcher
 ```
 
 ### Initialize and run
@@ -135,7 +135,7 @@ with an Agent Skill for AI-assisted crash triage.
 ### Install via Claude Code plugin marketplace
 
 ```
-/plugin marketplace add w6jsv/asc-crash-fetcher
+/plugin marketplace add jsvana/asc-crash-fetcher
 /plugin install testflight-crash-triage@asc-crash-fetcher
 ```
 
