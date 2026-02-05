@@ -102,3 +102,42 @@ pub struct CrashLog {
 pub struct CrashLogAttrs {
     pub log_text: Option<String>,
 }
+
+// ─── BetaFeedbackScreenshotSubmission ─────────────────────────────────────────
+
+#[derive(Debug, Deserialize)]
+pub struct ScreenshotSubmissionsResponse {
+    pub data: Vec<ScreenshotSubmission>,
+    pub links: PagedLinks,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ScreenshotSubmission {
+    pub id: String,
+    pub attributes: Option<ScreenshotSubmissionAttrs>,
+    pub relationships: Option<ScreenshotSubmissionRels>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ScreenshotSubmissionAttrs {
+    pub created_date: Option<DateTime<Utc>>,
+    pub comment: Option<String>,
+    pub email: Option<String>,
+    pub device_model: Option<String>,
+    pub os_version: Option<String>,
+    pub locale: Option<String>,
+    pub time_zone: Option<String>,
+    pub connection_type: Option<String>,
+    pub battery_percentage: Option<i32>,
+    pub app_platform: Option<String>,
+    pub device_platform: Option<String>,
+    pub device_family: Option<String>,
+    pub build_bundle_id: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ScreenshotSubmissionRels {
+    pub build: Option<RelData>,
+    pub tester: Option<RelData>,
+}

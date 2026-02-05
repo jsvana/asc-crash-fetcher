@@ -128,4 +128,57 @@ impl AscClient {
             .and_then(|r| r.data.attributes)
             .and_then(|a| a.log_text))
     }
+
+    // ─── Screenshot submissions ───────────────────────────────────────────
+
+    pub async fn get_screenshot_page(&self, url: &str) -> Result<ScreenshotSubmissionsResponse> {
+        self.get_json(url).await
+    }
+
+    /// Build the initial URL for listing screenshot submissions.
+    pub fn screenshot_list_url(app_asc_id: &str) -> String {
+        format!(
+            "{BASE}/v1/apps/{app_asc_id}/betaFeedbackScreenshotSubmissions\
+             ?fields[betaFeedbackScreenshotSubmissions]=\
+             createdDate,comment,email,deviceModel,osVersion,locale,\
+             timeZone,connectionType,batteryPercentage,\
+             appPlatform,devicePlatform,deviceFamily,buildBundleId\
+             &sort=-createdDate\
+             &limit=200"
+        )
+    }
+
+    /// Download screenshot. Returns Option<(bytes, mime_type)>.
+    pub async fn get_screenshot(&self, submission_id: &str) -> Result<Option<(Vec<u8>, String)>> {
+        let url = format!("{BASE}/v1/betaFeedbackScreenshotSubmissions/{submission_id}/screenshot");
+        let token = self.token()?;
+        debug!(url = %url, "GET screenshot");
+
+        let resp = self
+            .http
+            .get(&url)
+            .header(AUTHORIZATION, format!("Bearer {token}"))
+            .send()
+            .await
+            .context("screenshot request failed")?;
+
+        if resp.status().as_u16() == 404 {
+            return Ok(None);
+        }
+        let status = resp.status();
+        if !status.is_success() {
+            let body = resp.text().await.unwrap_or_default();
+            bail!("API {status}: {body}");
+        }
+
+        let content_type = resp
+            .headers()
+            .get(reqwest::header::CONTENT_TYPE)
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("image/png")
+            .to_string();
+
+        let bytes = resp.bytes().await.context("read screenshot bytes")?;
+        Ok(Some((bytes.to_vec(), content_type)))
+    }
 }
