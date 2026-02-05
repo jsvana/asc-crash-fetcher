@@ -1,18 +1,20 @@
 ---
 name: testflight-crash-triage
 description: >
-  Triage TestFlight crash reports from App Store Connect using the
-  asc-crash-fetcher CLI. Syncs crash submissions to a local SQLite database,
-  downloads .ips crash logs, analyzes stack traces, and tracks fix status.
-  Use when the user mentions TestFlight crashes, crash triage, .ips crash logs,
+  Triage TestFlight crash reports and screenshot feedback from App Store Connect
+  using the asc-crash-fetcher CLI. Syncs crash submissions and feedback to a local
+  SQLite database, downloads .ips crash logs and screenshot attachments, analyzes
+  stack traces, and tracks fix status. Use when the user mentions TestFlight crashes,
+  crash triage, .ips crash logs, TestFlight feedback, screenshot submissions,
   App Store Connect crash data, or asks to analyze iOS/macOS crash reports.
 ---
 
 # TestFlight Crash Triage
 
-Analyze and manage TestFlight crash reports using the `asc-crash-fetcher` CLI.
-This tool maintains a local SQLite database of crash submissions and downloads
-`.ips` crash logs to disk for analysis.
+Analyze and manage TestFlight crash reports and screenshot feedback using the
+`asc-crash-fetcher` CLI. This tool maintains a local SQLite database of crash
+submissions and feedback, downloading `.ips` crash logs and screenshots to disk
+for analysis.
 
 ## Prerequisites
 
@@ -20,9 +22,9 @@ The `asc-crash-fetcher` binary must be on PATH. Data lives in `./asc-crashes/`
 (project-local) or `~/.asc-crashes/` (global). Run `asc-crash-fetcher init`
 if no data directory exists yet.
 
-## Workflow
+## Crash Workflow
 
-### 1. Sync latest crashes
+### 1. Sync latest crashes and feedback
 
 Always start by pulling the latest data:
 
@@ -43,9 +45,27 @@ Returns:
     }
   ],
   "recovered_logs": [],
-  "total": 47,
-  "unfixed": 12
+  "new_feedbacks": [
+    {
+      "id": 3,
+      "device_model": "iPhone14,2",
+      "os_version": "iOS 18.1",
+      "screenshot_path": "/Users/jay/.asc-crashes/screenshots/3.png",
+      "tester_comment": "Button text is cut off"
+    }
+  ],
+  "recovered_screenshots": [],
+  "crash_total": 47,
+  "crash_unfixed": 12,
+  "feedback_total": 8,
+  "feedback_unfixed": 5
 }
+```
+
+Sync only crashes or only feedback:
+```bash
+asc-crash-fetcher sync --no-feedback --format json   # crashes only
+asc-crash-fetcher sync --no-crashes --format json    # feedback only
 ```
 
 ### 2. List unfixed crashes
@@ -106,11 +126,58 @@ asc-crash-fetcher reopen <id>
 asc-crash-fetcher stats --format json
 ```
 
+## Feedback Workflow
+
+Screenshot feedback submissions follow the same pattern as crashes but use the
+`feedback` subcommand.
+
+### 1. List unfixed feedback
+
+```bash
+asc-crash-fetcher feedback list --status new,investigating --format json
+```
+
+### 2. View feedback details
+
+```bash
+asc-crash-fetcher feedback show <id> --format json
+```
+
+The `screenshot_path` field contains the absolute path to the screenshot image.
+View it with an image viewer or the `Read` tool (which can display images).
+
+### 3. Get screenshot path
+
+```bash
+asc-crash-fetcher feedback screenshot <id>
+```
+
+Prints only the absolute file path — useful for piping to other tools.
+
+### 4. Mark resolution
+
+```bash
+asc-crash-fetcher feedback fix <id> --notes "Fixed button layout in iOS 18"
+asc-crash-fetcher feedback investigate <id>
+asc-crash-fetcher feedback wontfix <id> --notes "Expected behavior on small screens"
+asc-crash-fetcher feedback duplicate <id> --of <other_id>
+asc-crash-fetcher feedback reopen <id>
+```
+
+### 5. Review feedback stats
+
+```bash
+asc-crash-fetcher feedback stats --format json
+```
+
 ## Command Reference
+
+### Crash Commands
 
 | Task | Command |
 |---|---|
 | Pull new crashes | `asc-crash-fetcher sync --format json` |
+| Pull crashes only | `asc-crash-fetcher sync --no-feedback --format json` |
 | List unfixed | `asc-crash-fetcher list --status new,investigating --format json` |
 | Show one crash | `asc-crash-fetcher show <id> --format json` |
 | Get log path | `asc-crash-fetcher log <id>` |
@@ -121,12 +188,28 @@ asc-crash-fetcher stats --format json
 | Reopen | `asc-crash-fetcher reopen <id>` |
 | Statistics | `asc-crash-fetcher stats --format json` |
 
+### Feedback Commands
+
+| Task | Command |
+|---|---|
+| Pull feedback only | `asc-crash-fetcher sync --no-crashes --format json` |
+| List unfixed | `asc-crash-fetcher feedback list --status new,investigating --format json` |
+| Show one feedback | `asc-crash-fetcher feedback show <id> --format json` |
+| Get screenshot path | `asc-crash-fetcher feedback screenshot <id>` |
+| Mark fixed | `asc-crash-fetcher feedback fix <id> --notes "description"` |
+| Mark investigating | `asc-crash-fetcher feedback investigate <id>` |
+| Mark won't fix | `asc-crash-fetcher feedback wontfix <id> --notes "reason"` |
+| Mark duplicate | `asc-crash-fetcher feedback duplicate <id> --of <other_id>` |
+| Reopen | `asc-crash-fetcher feedback reopen <id>` |
+| Statistics | `asc-crash-fetcher feedback stats --format json` |
+
 ## Important Notes
 
 - Always use `--format json` for structured output.
-- The `log <id>` command prints ONLY the absolute file path — useful for piping.
-- Crash logs may not be available immediately. `sync` retries missing logs each run.
+- The `log <id>` and `feedback screenshot <id>` commands print ONLY the absolute file path — useful for piping.
+- Crash logs and screenshots may not be available immediately. `sync` retries missing files each run.
 - Reports expire after 120 days on Apple's servers.
 - Status values: `new`, `investigating`, `fixed`, `wontfix`, `duplicate`.
 - Use `--data-dir` to override the default data directory.
 - Use `--app BUNDLE_ID` to filter sync/list/stats to a single app.
+- Screenshots are saved as `.png`, `.jpg`, `.heic`, `.mov`, or `.mp4` based on MIME type.
